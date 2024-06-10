@@ -1,0 +1,59 @@
+body {
+    background-color: black;
+    color: cyan;
+}
+
+header h1 {
+    color: cyan;
+}
+
+.form-label {
+    color: cyan;
+}
+
+.btn-primary {
+    background-color: #00bcd4;
+    border-color: #00acc1;
+}
+
+.btn-secondary {
+    background-color: #4dd0e1;
+    border-color: #26c6da;
+}
+
+.table {
+    background-color: #ffffff;
+}
+
+.table thead {
+    background-color: #006064;
+    color: #ffffff;
+}
+
+input:invalid, select:invalid, textarea:invalid {
+    border-color: red;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 38px;
+    overflow: hidden;
+}
+
+footer {
+    color: cyan;
+    text-align: center;
+    padding: 20px 0;
+    position: relative;
+    width: 100%;
+    bottom: 0;
+}
+
+footer .link {
+    color: cyan;
+    text-decoration: none;
+}
+
+footer .link:hover {
+    color: red;
+}

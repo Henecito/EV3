@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STDI Solutions - Servicio Técnico</title>
+    <link rel="icon" type="image/jpg" href="assets/favicon_io/favicon.ico"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="my-4 text-center">
+            <img src="assets/img/Logo.JPEG" alt="Logo STDI" width="220">
+        </header>
+
+        <form id="clientForm" class="mb-4">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="clientName" class="form-label">Nombre del Cliente</label>
+                    <input type="text" class="form-control" id="clientName" required placeholder="Ingrese el nombre del cliente">
+                </div>
+                <div class="col-md-6">
+                    <label for="nContact" class="form-label">Nº Contacto</label>
+                    <input type="ncontact" class="form-control" id="nContact" required placeholder="Ingrese el número de contacto">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="serviceDate" class="form-label">Fecha del Servicio</label>
+                    <input type="date" class="form-control" id="serviceDate" required placeholder="Ingrese la fecha de ingreso de la reparación">
+                </div>
+                <div class="col-md-6">
+                    <label for="phoneType" class="form-label">Tipo de Teléfono</label>
+                    <select class="form-select" id="phoneType" required>
+                        <option value="" disabled selected>Seleccione el tipo de teléfono</option>
+                        <option value="iPhone">iPhone</option>
+                        <option value="Android">Android</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="repairDetails" class="form-label">Detalles de la Reparación</label>
+                    <textarea class="form-control" id="repairDetails" maxlength="40" required style="resize: none; height: 38px;" placeholder="Ingrese los detalles de reparación, máximo 40 carácteres"></textarea>
+                </div>
+                <div class="col-md-6">
+                    <label for="servicePrice" class="form-label">Precio del Servicio</label>
+                    <input type="number" class="form-control" id="servicePrice" min="1" required placeholder="Ingrese el precio del servicio">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="partName" class="form-label">Nombre del Repuesto</label>
+                    <input type="text" class="form-control" id="partName" required placeholder="Ingrese el nombre del repuesto">
+                </div>
+                <div class="col-md-6">
+                    <label for="tName" class="form-label">Nombre del Técnico</label>
+                    <input type="tname" class="form-control" id="tName" required placeholder="Ingrese el nombre del Técnico encargado">
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6 d-grid">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+                <div class="col-md-6 d-grid">
+                    <button type="button" class="btn btn-secondary" id="clearBtn">Limpiar</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="d-grid gap-2 col-6 mx-auto">
+            <button id="showRecordsBtn" class="btn btn-primary">Mostrar Registros</button>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+<footer>
+    <a class="link" href="https://www.instagram.com/stdi_solutions/" target="_blank">© 2024 STDI Solutions</a>
+</footer>
+</html>
+
