@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -18,6 +18,7 @@ const db = getFirestore(app);
 
 const clientForm = document.getElementById('clientForm');
 const recordsBody = document.createElement('tbody'); 
+const add = document.getElementById('btnadd');
 
 const addRecord = async (record) => {
     try {
@@ -51,6 +52,7 @@ const loadRecords = async () => {
                 <p class="card-text"><strong>Nombre del Técnico:</strong> ${record.tName}</p>
                 <button class="btn btn-danger btn-sm" onclick="deleteRecord('${doc.id}')">Eliminar</button>
                 <button class="btn btn-warning btn-sm" onclick="editRecord('${doc.id}', '${record.clientName}', '${record.nContact}', '${record.serviceDate}', '${record.phoneType}', '${record.repairDetails}', '${record.servicePrice}', '${record.partName}', '${record.tName}')">Editar</button>
+                <button class="btn btn-success btn-sm" onclick="deliverRecord('${doc.id}')">Entregar</button>
             </div>
         `;
 
@@ -82,21 +84,7 @@ window.deleteRecord = async (id) => {
     }
 };
 
-
-window.editRecord = (id, clientName, nContact, serviceDate, phoneType, repairDetails, servicePrice, partName, tName) => {
-    clientForm.clientName.value = clientName;
-    clientForm.nContact.value = nContact;
-    clientForm.serviceDate.value = serviceDate;
-    clientForm.phoneType.value = phoneType;
-    clientForm.repairDetails.value = repairDetails;
-    clientForm.servicePrice.value = servicePrice;
-    clientForm.partName.value = partName;
-    clientForm.tName.value = tName;
-    document.getElementById('saveBtn').setAttribute('data-id', id);
-};
-
-clientForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+add.addEventListener('click', () => {
     const currentDate = new Date().toISOString().split('T')[0];
     const selectedDate = clientForm.serviceDate.value;
 
@@ -115,6 +103,7 @@ clientForm.addEventListener('submit', (e) => {
         partName: clientForm.partName.value,
         tName: clientForm.tName.value
     };
+
     addRecord(record);
     clientForm.reset();
 });
@@ -163,5 +152,104 @@ document.getElementById('showRecordsBtn').addEventListener('click', async () => 
         backdropFilter: 'blur(10px)'
     });  
 });
+
+window.deliverRecord = async (id) => {
+    const result = await Swal.fire({
+        title: '¿Entregar este registro?',
+        text: "Este registro se moverá a los entregados.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, entregarlo',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+        try {
+            const docRef = doc(db, "stdi", id);
+            const docSnap = await getDoc(docRef);
+
+            if (docSnap.exists()) {
+                const deliveredRef = collection(db, "entregados");
+                await addDoc(deliveredRef, docSnap.data());
+
+                await deleteDoc(docRef);
+
+                Swal.fire('Entregado', 'El registro ha sido entregado exitosamente', 'success');
+                loadRecords(); 
+            } else {
+                Swal.fire('Error', 'El registro no existe en la base de datos', 'error');
+            }
+        } catch (e) {
+            console.error("Error al entregar el registro: ", e);
+            Swal.fire('Error', 'Hubo un problema al entregar el registro', 'error');
+        }
+    }
+};
+
+const fillEditForm = (record) => {
+    clientForm.clientName.value = record.clientName;
+    clientForm.nContact.value = record.nContact;
+    clientForm.serviceDate.value = record.serviceDate;
+    clientForm.phoneType.value = record.phoneType;
+    clientForm.repairDetails.value = record.repairDetails;
+    clientForm.servicePrice.value = record.servicePrice;
+    clientForm.partName.value = record.partName;
+    clientForm.tName.value = record.tName;
+};
+const updateRecord = async (id, updatedRecord) => {
+    try {
+        await setDoc(doc(db, "stdi", id), updatedRecord, { merge: true });
+        Swal.fire('Actualizado', 'El registro ha sido actualizado exitosamente', 'success');
+        loadRecords();
+    } catch (e) {
+        console.error("Error al actualizar el registro: ", e);
+        Swal.fire('Error', 'Hubo un problema al actualizar el registro', 'error');
+    }
+};
+
+window.editRecord = (id, clientName, nContact, serviceDate, phoneType, repairDetails, servicePrice, partName, tName) => {
+    const record = {
+        clientName,
+        nContact,
+        serviceDate,
+        phoneType,
+        repairDetails,
+        servicePrice,
+        partName,
+        tName
+    };
+    fillEditForm(record);
+
+    Swal.fire({
+        title: 'Editar Registro',
+        html: clientForm.outerHTML,
+        customClass: {
+            popup: 'swal-wide',
+            title: 'swal-title-custom',
+            htmlContainer: 'swal-html-container-custom'
+        },
+        showCancelButton: true,
+        showConfirmButton: true,
+        confirmButtonText: 'Actualizar',
+        cancelButtonText: 'Cancelar',
+        focusConfirm: false,
+        preConfirm: () => {
+            const updatedRecord = {
+                clientName: document.getElementById('clientName').value,
+                nContact: document.getElementById('nContact').value,
+                serviceDate: document.getElementById('serviceDate').value,
+                phoneType: document.getElementById('phoneType').value,
+                repairDetails: document.getElementById('repairDetails').value,
+                servicePrice: document.getElementById('servicePrice').value,
+                partName: document.getElementById('partName').value,
+                tName: document.getElementById('tName').value
+            };
+
+            updateRecord(id, updatedRecord);
+        }
+    });
+};
 
 window.addEventListener('load', loadRecords);
