@@ -57,3 +57,9 @@ footer .link {
 footer .link:hover {
     color: red;
 }
+
+
+
+.showRegistros {
+    display: none;
+}

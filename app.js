@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -10,6 +10,12 @@ const firebaseConfig = {
     messagingSenderId: "381912565465",
     appId: "1:381912565465:web:3c6c5e44d5c23229ef60c8",
     measurementId: "G-SFJ9JLQV53"
+};
+
+const getDocumento = (id) => getDoc(doc(db, "stdi", id));
+
+export const update = (id, tec) => {
+    updateDoc(doc(db, "stdi", id), tec);
 };
 
 // Inicializar Firebase
@@ -38,6 +44,7 @@ const loadRecords = async () => {
     querySnapshot.forEach((doc) => {
         const record = doc.data();
         const card = document.createElement('div');
+        card.id = 'registros'
         card.classList.add('card', 'mb-3');
 
         card.innerHTML = `
@@ -129,7 +136,6 @@ document.getElementById('clearBtn').addEventListener('click', () => {
 document.getElementById('showRecordsBtn').addEventListener('click', async () => {
     await loadRecords(); 
     const recordsTableHtml = `
-
             ${recordsBody.outerHTML}
     `;
 
@@ -198,18 +204,61 @@ const fillEditForm = (record) => {
     clientForm.partName.value = record.partName;
     clientForm.tName.value = record.tName;
 };
-const updateRecord = async (id, updatedRecord) => {
-    try {
-        await setDoc(doc(db, "stdi", id), updatedRecord, { merge: true });
-        Swal.fire('Actualizado', 'El registro ha sido actualizado exitosamente', 'success');
-        loadRecords();
-    } catch (e) {
-        console.error("Error al actualizar el registro: ", e);
-        Swal.fire('Error', 'Hubo un problema al actualizar el registro', 'error');
-    }
-};
 
 window.editRecord = (id, clientName, nContact, serviceDate, phoneType, repairDetails, servicePrice, partName, tName) => {
+
+    const registros = document.querySelector('.swal2-container');
+    registros.classList.add('showRegistros');
+    const btnSaveToUp = document.getElementById('btnSaveToUp');
+    btnSaveToUp.innerHTML = `
+        <div class="col-md-6 d-grid">
+            <button type="submit" class="btn btn-primary" id="btnUp">Actualizar</button>
+        </div>
+        <div class="col-md-6 d-grid">
+            <button type="button" class="btn btn-secondary" id="clearBtn">Limpiar</button>
+        </div>
+    `;
+
+    const btnUp = document.getElementById('btnUp');
+    btnUp.addEventListener('click', async () => {
+        const d = document.getElementById('serviceDate').value;
+
+        const record = {
+            clientName: clientForm.clientName.value,
+            nContact: clientForm.nContact.value,
+            phoneType: clientForm.phoneType.value,
+            repairDetails: clientForm.repairDetails.value,
+            servicePrice: clientForm.servicePrice.value,
+            partName: clientForm.partName.value,
+            tName: clientForm.tName.value,
+            serviceDate: d
+        };
+
+        btnSaveToUp.innerHTML = `
+            <div class="col-md-6 d-grid">
+                <button type="submit" class="btn btn-primary" id="btnadd">Guardar</button>
+            </div>
+            <div class="col-md-6 d-grid">
+                <button type="button" class="btn btn-secondary" id="clearBtn">Limpiar</button>
+            </div>
+        `;
+
+        await update(id, record);
+
+        Swal.fire({
+            title: 'Actualización exitosa',
+            text: 'El registro ha sido actualizado exitosamente.',
+            icon: 'success',
+            confirmButtonText: 'OK',
+            customClass: {
+                confirmButton: 'btn btn-primary'
+            },
+            buttonsStyling: false
+        });
+
+        clientForm.reset();
+    });
+
     const record = {
         clientName,
         nContact,
@@ -220,36 +269,9 @@ window.editRecord = (id, clientName, nContact, serviceDate, phoneType, repairDet
         partName,
         tName
     };
+
     fillEditForm(record);
-
-    Swal.fire({
-        title: 'Editar Registro',
-        html: clientForm.outerHTML,
-        customClass: {
-            popup: 'swal-wide',
-            title: 'swal-title-custom',
-            htmlContainer: 'swal-html-container-custom'
-        },
-        showCancelButton: true,
-        showConfirmButton: true,
-        confirmButtonText: 'Actualizar',
-        cancelButtonText: 'Cancelar',
-        focusConfirm: false,
-        preConfirm: () => {
-            const updatedRecord = {
-                clientName: document.getElementById('clientName').value,
-                nContact: document.getElementById('nContact').value,
-                serviceDate: document.getElementById('serviceDate').value,
-                phoneType: document.getElementById('phoneType').value,
-                repairDetails: document.getElementById('repairDetails').value,
-                servicePrice: document.getElementById('servicePrice').value,
-                partName: document.getElementById('partName').value,
-                tName: document.getElementById('tName').value
-            };
-
-            updateRecord(id, updatedRecord);
-        }
-    });
 };
+
 
 window.addEventListener('load', loadRecords);
